@@ -1,0 +1,439 @@
+/* /////////////////////////////////////////////////////////////////// 响应式布局 END */
+
+:root {
+  --theme: var(--primary);
+  font-family: "Roboto", sans-serif, "inherit", "Helvetica Neue", "Luxi Sans", "DejaVu Sans", Tahoma, "Hiragino Sans GB", "Microsoft Yahei";
+}
+
+@media (max-width: 640px) {
+  .menu {
+    margin-bottom: 15px;
+    padding: 5px;
+  }
+  .content {
+    max-width: 100%;
+  }
+  .writer {
+    max-width: 100%;
+  }
+  .input {
+    height: 280px;
+  }
+}
+
+@media (min-width: 640px) {
+  .menu {
+    margin-bottom: 30px;
+    padding: 10px;
+  }
+  .writer {
+    max-width: 860px;
+    margin: auto;
+    display: flex;
+  }
+  .input {
+    height: 480px;
+  }
+  .feelings {
+    height: 480px;
+    flex: 3;
+    margin-left: 1em;
+    overflow: auto;
+  }
+}
+
+@media (min-width: 640px) and (max-width: 880px) {
+  .content {
+    max-width: 640px;
+    margin: auto;
+  }
+}
+
+@media (min-width: 880px) {
+  .content {
+    max-width: 640px;
+    margin-left: 120px;
+  }
+}
+
+@media (min-width: 1280px) {
+  .menu {
+    margin-bottom: 60px;
+    padding: 20px;
+  }
+}
+
+@media (min-width: 1920px) {
+  /* 复用了 @media (min-width: 720px) 的 content 类属性 */
+  .writer {
+    max-width: 1280px;
+  }
+}
+
+.menu {
+  display: flex;
+  align-items: center;
+  background-color: #00000009;
+}
+
+footer {
+  margin: 2em 0 0.5em 0;
+  font-size: 12px;
+  text-align: center;
+}
+
+textarea {
+  height: 100%;
+  font-size: 18px;
+  font-weight: 500;
+  display: block;
+  white-space: normal;
+  border: none;
+  outline: none;
+  overflow: auto;
+}
+
+textarea:focus {
+  outline: none !important;
+  border: none;
+  box-shadow: none;
+}
+
+p {
+  font-size: 16px;
+  white-space: pre-line;
+  color: var(--tag-c);
+}
+
+button.none {
+  width: auto;
+  background-color: #00000000;
+  color: var(--text-c, var(--white));
+  box-shadow: none;
+  border: none;
+  padding: 0px;
+  margin: 0px;
+}
+
+button.text {
+  width: auto;
+  background-color: #00000000;
+  color: var(--text-c, var(--white));
+  box-shadow: none;
+  border: none;
+  padding: 0px 15px;
+  margin: 0px;
+}
+
+button.text+button.text {
+  margin-left: 10px;
+}
+
+button.f1 {
+  position: fixed;
+  height: 48px;
+  width: 48px;
+  bottom: 108px;
+  right: 32px;
+  text-align: center;
+  padding: 0px;
+  border-radius: 90px;
+}
+
+button.f0 {
+  position: fixed;
+  height: 48px;
+  width: 48px;
+  bottom: 48px;
+  right: 32px;
+  text-align: center;
+  padding: 0px;
+  border-radius: 90px;
+}
+
+button.emoji, button.attitude {
+  min-width: 1em;
+  width: auto;
+  background-color: #00000000;
+  color: var(--text-c, var(--white));
+  box-shadow: none;
+  border: none;
+  padding: 0px;
+  margin: 5px;
+}
+
+button.attitude+button.attitude {
+  margin-left: 10px;
+}
+
+.article>p {
+  font-size: 20px;
+}
+
+.posts>.post {
+  padding: 25px;
+}
+
+.post>.bar {
+  display: flex;
+  justify-content: center;
+  padding: 10px 5px;
+}
+
+.post>.bar>span {
+  flex: 1;
+}
+
+.emojis, .attitudes {
+  background-color: #00000009;
+  font-size: 1.3em;
+  margin-bottom: 10px;
+}
+
+.margin-5 {
+  margin: 5px;
+}
+
+.feeling {
+  max-height: 180px;
+  font-size: 1.3em;
+  overflow: auto;
+  padding: 0 5px 10px 5px;
+}
+
+.text {
+  font-size: 16px;
+  line-height: 26px;
+  max-height: 130px;
+  overflow: hidden;
+  position: relative;
+  padding: 0 5px;
+  white-space: pre-line;
+}
+
+.text button {
+  position: absolute;
+  right: -5px;
+  top: 104px;
+  font-size: 16px;
+  line-height: 26px;
+  text-align: center;
+  background-color: var(--background-body);
+  background-image: linear-gradient(rgba(255, 255, 255, .1), rgba(255, 255, 255, .1));
+  color: var(--text-c, var(--white));
+  box-shadow: none;
+  border: none;
+  padding: 0 16px;
+  margin: 0;
+}
+
+.text.show-more {
+  max-height: none;
+}
+
+.text.show-more button {
+  top: unset;
+  bottom: 0;
+  visibility: hidden;
+}
+
+p.preview {
+  width: 100%;
+  margin: 40px 0 40px 20px;
+}
+
+p.preview::before {
+  content: "\201C";
+  font-size: 50px;
+  float: left;
+  margin-top: -40px;
+  margin-left: -20px;
+  font-family: georgia, serif;
+  color: var(--tag-c);
+}
+
+p.preview::after {
+  content: "\201D";
+  font-size: 50px;
+  float: right;
+  font-family: georgia, serif;
+  color: var(--tag-c);
+}
+
+.dialog {
+  margin: 0.2em;
+  background-color: var(--background-body);
+  padding: 30px;
+  border-radius: 30px;
+}
+
+.scroll-hidden {
+  overflow: hidden;
+}
+
+.scroll-auto {
+  overflow: auto;
+}
+
+/* /////////////////////////////////////////////////////////////////// 随机匿名空间 START */
+
+.horizontal-scroll-wrapper {
+  width: 100%;
+  overflow: hidden;
+  min-height: 50px;
+  display: -webkit-box;
+}
+
+.horizontal-scroll-wrapper>div {
+  text-align: center;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  border: none;
+}
+
+/* /////////////////////////////////////////////////////////////////// 弹窗 START */
+
+.modal {
+  align-items: center;
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  overflow: hidden;
+  position: fixed;
+  z-index: 40;
+}
+
+.modal.is-active {
+  display: flex;
+}
+
+.modal-background {
+  background-color: rgba(10, 10, 10, .86);
+}
+
+.modal, .modal-background {
+  bottom: 0;
+  left: 0;
+  position: fixed;
+  right: 0;
+  top: 0;
+}
+
+.modal-content {
+  margin: 0 auto;
+  max-height: calc(100vh - 40px);
+  max-width: 640px;
+  width: 100%;
+  overflow: auto;
+  position: relative;
+}
+
+.modal-close {
+  -webkit-appearance: none;
+  border: none;
+  border-radius: 290486px;
+  cursor: pointer;
+  pointer-events: auto;
+  display: inline-block;
+  flex-grow: 0;
+  flex-shrink: 0;
+  font-size: 0;
+  outline: 0;
+  vertical-align: top;
+  background: 0 0;
+  height: 40px;
+  position: fixed;
+  right: 20px;
+  top: 20px;
+  width: 40px;
+  user-select: none;
+}
+
+.modal-close::before, .modal-close::after {
+  background-color: #fff;
+  content: "";
+  display: block;
+  left: 50%;
+  position: absolute;
+  top: 50%;
+  transform: translateX(-50%) translateY(-50%) rotate(45deg);
+  transform-origin: center center;
+}
+
+.modal-close::before {
+  height: 2px;
+  width: 50%;
+}
+
+.modal-close::after {
+  height: 50%;
+  width: 2px;
+}
+
+.modal-close:hover {
+  background-color: #000000a2;
+}
+
+/* /////////////////////////////////////////////////////////////////// 滚动条样式 START */
+
+.primary, .secondary, .green, .blue, .orange, .red, .white, .grey, .black {
+  --background-body: #ffffff;
+  --links: var(--primary);
+}
+
+.accent.primary, .accent.secondary, .accent.green, .accent.blue, .accent.red, .accent.orange, .accent.black {
+  --background-body: var(--accent-bg);
+  --links: #ffffff;
+}
+
+.accent {
+  overflow: auto;
+}
+
+/* 滚动条 */
+
+::-webkit-scrollbar-thumb:horizontal {
+  /*水平滚动条的样式*/
+  width: 5px;
+  background-color: var(--text-c);
+  -webkit-border-radius: 6px;
+  /* Also define the standard property 'border-radius' for compatibilitycss */
+  border-radius: 6px;
+}
+
+::-webkit-scrollbar-track-piece {
+  background-color: var(--background-body);
+  /*滚动条的背景颜色*/
+  -webkit-border-radius: 4px;
+  border-radius: 4px;
+  /*滚动条的圆角宽度*/
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  /*滚动条的宽度*/
+  height: 8px;
+  /*滚动条的高度*/
+}
+
+::-webkit-scrollbar-thumb:vertical {
+  /*垂直滚动条的样式*/
+  height: 50px;
+  background-color: var(--text-c);
+  -webkit-border-radius: 4px;
+  border-radius: 4px;
+  border: 2px solid var(--text-c);
+  outline-offset: -1px;
+  border: 2px solid var(--background-body);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  /*滚动条的hover样式*/
+  height: 50px;
+  background-color: var(--text-c);
+  -webkit-border-radius: 4px;
+  border-radius: 4px;
+}
+
+/* /////////////////////////////////////////////////////////////////// 滚动条样式 END */

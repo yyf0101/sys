@@ -1,0 +1,264 @@
+<html>
+
+{{template "fgm_head" .}}
+
+<body>
+  {{template "fgm_toolbar" .}}
+  <div id="content" class="content">
+    <div id="posts" class="posts">
+      {{range $i, $post := $.Posts}}
+      <div class="post">
+        <div id="t{{$post.id}}" class="text">{{$post.text}}<button onclick="onAll({{$post.id}})">全文</button></div>
+        <div class="bar">
+          <span class="createdAt" data-time="{{$post.createdAt}}"></span>
+          <div>
+            <button class="text" onclick="onEmoji({{$post.id}})">😀</button>
+            <button class="none" onclick="onReport({{$post.id}})">{{$.ReportButtonText}}</button>
+          </div>
+        </div>
+        <div id="a{{$post.id}}" class="attitudes">{{range $emojiId, $count := $post.attitudes}}
+          <button class="attitude" data-id="{{$emojiId}}" data-count="{{$count}}"
+            onclick='onAttitudeAppend(this, "{{$post.id}}")'></button>
+          {{end}}</div>
+        <div id="f{{$post.id}}" class="emojis" hidden></div>
+      </div>
+      {{end}}
+    </div>
+    <button id="nextPageBtn" class="text" style="width: 100%; margin: 25px 0;" onclick="toNexpage()">下一页</button>
+  </div>
+  <a id="backToTop" href="javascript:scroll(0,0)" style="display: none;"><button class="f1" style="--shadow: 5;">
+      <svg t="1594740406243" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg"
+        p-id="4359" width="48" height="48">
+        <path
+          d="M909.82006 415.207925L560.222495 65.61036c-27.303722-27.303722-71.561706-27.30474-98.868481 0L111.756449 415.207925c-27.303722 27.303722-27.30474 71.561706 0 98.868481 27.303722 27.303722 71.561706 27.30474 98.868481 0l230.245949-230.245949v670.248605c0 38.632349 31.287571 69.91992 69.91992 69.91992s69.91992-31.287571 69.91992-69.91992V283.830457l230.245949 230.245949c13.635066 13.635066 31.534908 20.488224 49.433732 20.488224s35.798665-6.818551 49.433731-20.488224c27.303722-27.303722 27.30474-71.561706 0-98.868481z"
+          fill="#ffffff" p-id="4360"></path>
+      </svg>
+    </button></a>
+  <a href="/new/post"><button class="f0" style="--shadow: 5;">
+      <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none"
+        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+        class="feather feather-edit">
+        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" /></svg>
+    </button></a>
+
+  {{template "fgm_footer" .}}
+
+  <!-- 以上是可滚动部分 -->
+
+  {{if .HasVote}}
+  {{template "fgm_vote" .VoteData}}
+  {{end}}
+  <script>
+
+    var postCount = {{ len .Posts }}
+    var emojiMap = new Map()
+    var feelingsDiv = document.createElement("div")
+    feelingsDiv.setAttribute("id", "feeling");
+    feelingsDiv.className = "feeling"
+
+    var currentPostId = 0
+
+    function onAll(tid) {
+      var p = document.getElementById("t" + tid)
+      p.className = "text show-more"
+    }
+
+    function onEmoji(postId) {
+      if (postId != currentPostId && 0 != currentPostId) {
+        var cur = document.getElementById("f" + currentPostId)
+        cur.hidden = true
+      }
+
+      var feel = document.getElementById("f" + postId)
+      feel.appendChild(feelingsDiv)
+      feel.hidden = !feel.hidden
+
+      currentPostId = postId
+    }
+
+    function onReport(postId) {
+      initArticles("{{.APIDomain}}/articles", function (articles) {
+        report("{{.APIDomain}}/report/" + postId, "举报", articles, "取消", "提交")
+      })
+    }
+
+    function onBackToTop(status) {
+      console.log("scroll statis is " + status)
+      var backToTop = document.getElementById("backToTop")
+      if (1 == status) {
+        backToTop.style = "display: flex"
+      } else if (3 == status) {
+        backToTop.style = "display: none"
+      }
+    }
+
+    function loadEmoji(emojis) {
+      var feelings = []
+      emojis.forEach(emoji => {
+        emoji.feelings.forEach(feeling => {
+          var temp = feelings[feeling.name]
+          if (undefined == temp) {
+            temp = [emoji]
+          } else {
+            temp[temp.length] = emoji
+          }
+          feelings[feeling.name] = temp
+          emojiMap.set(emoji.id, emoji.show)
+        })
+      });
+
+      for (var key in feelings) {
+        var items = feelings[key]
+        var div = document.createElement("div")
+        var title = document.createElement("span")
+        title.innerHTML = key + "<br>"
+        title.style = "font-size: 0.5em; margin-left: 4px;"
+        div.appendChild(title)
+        items.forEach(item => {
+          var btn = document.createElement("button")
+          btn.className = "emoji"
+          btn.id = item.id
+          btn.title = item.name
+          btn.onclick = function () {
+            onAttitudeNew(currentPostId, item.id)
+          }
+          btn.innerHTML = item.show
+          div.appendChild(btn)
+        });
+        feelingsDiv.append(div)
+      }
+
+      var attitudesDivs = document.getElementsByClassName("attitudes")
+      for (let index = 0; index < attitudesDivs.length; index++) {
+        const attitudesDiv = attitudesDivs[index];
+
+        var attitudeBtns = attitudesDiv.getElementsByClassName("attitude")
+
+        if (0 == attitudeBtns.length) {
+          continue
+        }
+
+        // 重新排序
+        attitudeBtns = Array.prototype.slice.call(attitudeBtns)
+        attitudeBtns.sort(sortAttitudeCount)
+
+        for (let index = 0; index < attitudeBtns.length; index++) {
+          const element = attitudeBtns[index];
+
+          let id = parseInt(element.dataset.id)
+          let count = parseInt(element.dataset.count)
+
+          let emojiShow = emojiMap.get(id)
+
+          if (undefined == emojiShow || null == emojiShow) {
+            attitudesDiv.removeChild(element)
+            continue
+          }
+
+          if (1 == count) {
+            element.innerHTML = emojiShow
+          } else {
+            element.innerHTML = emojiShow + "+" + count
+          }
+
+          attitudesDiv.appendChild(element)
+        }
+      }
+    }
+
+    function sortAttitudeCount(a, b) {
+      let acount = parseInt(a.dataset.count)
+      let bcount = parseInt(b.dataset.count)
+      return bcount - acount
+    }
+
+    function onAttitudeNew(postId, emojiId) {
+      apiPost("{{.APIDomain}}/say", { "postId": postId, "emojiId": emojiId }, function (resp) {
+        var attitudesDiv = document.getElementById("a" + postId)
+        var attitudeBtns = attitudesDiv.getElementsByClassName("attitude")
+        var attitudeBtn = undefined
+        for (let index = 0; index < attitudeBtns.length; index++) {
+          const element = attitudeBtns[index];
+
+          let id = parseInt(element.dataset.id)
+
+          if (id == emojiId) {
+            attitudeBtn = element
+          }
+        }
+
+        if (undefined == attitudeBtn) {
+          attitudeBtn = document.createElement("button")
+          attitudeBtn.className = "attitude"
+          attitudeBtn.dataset.id = emojiId
+          attitudeBtn.dataset.count = 1
+          attitudeBtn.innerHTML = emojiMap.get(emojiId)
+
+          attitudesDiv.appendChild(attitudeBtn)
+        } else {
+          let count = parseInt(attitudeBtn.dataset.count) + 1
+          attitudeBtn.innerHTML = emojiMap.get(emojiId) + "+" + count
+          attitudeBtn.dataset.count = count
+        }
+
+        Snackbar.show({ text: "SUCCESS", });
+      })
+    }
+
+    function onAttitudeAppend(element, postId) {
+      postId = parseInt(postId)
+      emojiId = parseInt(element.dataset.id)
+      apiPost("{{.APIDomain}}/say", { "postId": postId, "emojiId": emojiId }, function (resp) {
+        if (0 == resp.code) {
+          let count = parseInt(element.dataset.count) + 1
+          element.innerHTML = emojiMap.get(emojiId) + "+" + count
+          element.dataset.count = count
+
+          Snackbar.show({ text: "SUCCESS", });
+        } else {
+          Snackbar.show({ text: resp.erro, });
+        }
+      })
+    }
+
+    function toNexpage() {
+      window.location = "/posts/" + postCount
+    }
+
+    function onNextPage() {
+      window.onscroll = undefined
+
+      onNextPosts("{{.APIDomain}}/posts?offset=" + postCount, "posts", "{{$.ReportButtonText}}",
+        onAll, onEmoji, onReport, onAttitudeAppend,
+        function (count) {
+          postCount += count
+
+          var nextPageBtn = document.getElementById("nextPageBtn")
+          nextPageBtn.hidden = false
+
+          window.onscroll = function () {
+            autoLoad(100, onNextPage)
+          }
+        },
+        function () {
+          var nextPageBtn = document.getElementById("nextPageBtn")
+          nextPageBtn.hidden = true
+
+          window.onscroll = undefined
+        })
+    }
+
+    httpGet("/static/emoji.json", loadEmoji)
+
+    window.onscroll = function () {
+      autoLoad(100, onNextPage)
+    }
+
+    document.addEventListener("scroll", function() {
+      onWindowScroll(onBackToTop)
+    })
+  </script>
+</body>
+
+</html>
